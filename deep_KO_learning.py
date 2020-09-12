@@ -8,6 +8,25 @@ from torch.utils.data import DataLoader
 print("Using PyTorch Version %s" %torch.__version__)
 import os
 
+class Net(nn.Module):
+    
+    def __init__(self, input_dim, output_dim, hl_sizes):
+        super(Net, self).__init__()
+        current_dim = input_dim
+        self.linears = nn.ModuleList()
+        for hl_dim in hl_sizes:
+            self.linears.append(nn.Linear(current_dim, hl_dim))
+            current_dim = hl_dim
+        self.linears.append(nn.Linear(output_dim, output_dim,bias=False))
+
+    def forward(self, x):
+        input_vecs = x
+        for layer in self.linears[:-1]:
+            x = F.relu(layer(x))
+        y = torch.cat((torch.Tensor(np.ones((x.shape[0],1))),input_vecs,x),dim=1)
+        x = self.linears[-1](y)
+        return {'KPsiXp':x,'PsiXf':y} 
+
 if __name__ == '__main__': 
 
     script_dir = os.path.dirname('deep_KO_learning.py') # getting relative path
@@ -80,33 +99,10 @@ if __name__ == '__main__':
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
     BATCH_SIZE = 2 #int(nT/10) 
 
-
-class Net(nn.Module):
-    
-    def __init__(self, input_dim, output_dim, hl_sizes):
-        super(Net, self).__init__()
-        current_dim = input_dim
-        self.linears = nn.ModuleList()
-        for hl_dim in hl_sizes:
-            self.linears.append(nn.Linear(current_dim, hl_dim))
-            current_dim = hl_dim
-        self.linears.append(nn.Linear(output_dim, output_dim,bias=False))
-
-    def forward(self, x):
-        input_vecs = x
-        for layer in self.linears[:-1]:
-            x = F.relu(layer(x))
-        y = torch.cat((torch.Tensor(np.ones((x.shape[0],1))),input_vecs,x),dim=1)
-        x = self.linears[-1](y)
-        return {'KPsiXp':x,'PsiXf':y} 
-
-
-if __name__ == '__main__':
-
     net = Net(NUM_INPUTS,NUM_OUTPUTS,HL_SIZES)
     print(net)
 
-    # Defining the loss function and the optimizer
+    ### Defining the loss function and the optimizer ###
 
     LEARNING_RATE = 0.05
     L2_REG = 0.0
@@ -116,7 +112,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(net.parameters(),lr=LEARNING_RATE,momentum=MOMENTUM,weight_decay=L2_REG)
 
 
-    # Train the network 
+    ### Training the network ###
     print_less_often = 200
     eps = 1e-100
     train_loss = []
