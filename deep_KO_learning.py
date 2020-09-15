@@ -33,12 +33,12 @@ if __name__ == '__main__':
     trained_models_path = os.path.join(script_dir, 'trained_models') # which relative path do you want to see
     data_path = os.path.join(script_dir,'data/')
 
-    save_network = 0
-    net_name = '/malathion_polyculture_test'
+    save_network = 1
+    net_name = '/mt_poly_bt'
 
     ### Datasets ###
 
-    dataset = 5 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory and the number of trajectories
+    dataset = 6 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory and the number of trajectories
 
     if dataset == 0: 
         file_dir = 'toggle_switch_data.p'
@@ -57,6 +57,9 @@ if __name__ == '__main__':
         
     if dataset == 5:
         file_dir = 'malathion_polyculture_pfluorescens_TPMs.p'
+
+    if dataset == 6:
+        file_dir = 'mt_poly_bt_TPMs.p'
 
 
     def get_snapshot_matrices(X,nT,nTraj): 
@@ -104,7 +107,7 @@ if __name__ == '__main__':
 
     ### Defining the loss function and the optimizer ###
 
-    LEARNING_RATE = 0.05
+    LEARNING_RATE = 0.25
     L2_REG = 0.0
     MOMENTUM = 0.00
 
@@ -114,15 +117,20 @@ if __name__ == '__main__':
 
     ### Training the network ###
     print_less_often = 200
-    eps = 1e-100
+    eps = 1e-13
     train_loss = []
     maxEpochs = 20000
     prev_loss = 0
     curr_loss = 1e10
     epoch = 0
     net.train()
-    while (epoch <= maxEpochs): # and (np.abs(curr_loss-prev_loss) > eps):
-        prev_loss = curr_loss
+    while (epoch <= maxEpochs): 
+
+        if epoch % print_less_often == 0:
+            if np.abs(prev_loss - curr_loss) < eps:
+                break
+            prev_loss = curr_loss
+
         for i in range(0,trainXp.shape[0],BATCH_SIZE):
             
             Kpsixp = net(trainXp[i:i+BATCH_SIZE])['KPsiXp'] 
@@ -132,11 +140,14 @@ if __name__ == '__main__':
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
         curr_loss = loss.item()
+
         if epoch % print_less_often == 0:
             print('['+str(epoch)+']'+' loss = '+str(loss.item()))
             train_loss.append(loss.item()) 
         epoch+=1
+
     print('['+str(epoch)+']'+' loss = '+ str(loss.item()))
 
 
