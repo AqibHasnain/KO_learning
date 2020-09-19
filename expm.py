@@ -1,5 +1,7 @@
 import numpy as np
 
+# Author: John Burkardt
+
 ### TO-DO ###
 # need to write this all in pytorch and keep track of all gradients so that I don't have to worry about that when training
 # can be a in-file function for deep_KO_learning. 
