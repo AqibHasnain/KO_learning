@@ -4,7 +4,7 @@ import numpy as np
 
 ### TO-DO ###
 # need to write this all in pytorch and keep track of all gradients so that I don't have to worry about that when training
-# can be a in-file function for deep_KO_learning. 
+# can be a in-file function for deep_KG_learning. 
 
 # Input
 # a: the matrix
