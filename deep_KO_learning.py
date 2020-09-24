@@ -1,14 +1,20 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import pickle
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
 print("Using PyTorch Version %s" %torch.__version__)
 import os
 
 class Net(nn.Module):
+
+    ''' 
+    This is a feedforward network taking snapshots of a dynamical system
+    as input and spews two outputs. Output 1: KPsiXp, the featurized snapshot 
+    data propogated forward by the trainable Koopman operator. 
+    Output 2: PsiXf, the image of the featurized snapshot data.
+    When the network is trained, the two outputs should be close in any distance
+    '''
     
     def __init__(self, input_dim, output_dim, hl_sizes):
         super(Net, self).__init__()
@@ -33,7 +39,7 @@ if __name__ == '__main__':
     trained_models_path = os.path.join(script_dir, 'trained_models') # which relative path do you want to see
     data_path = os.path.join(script_dir,'data/')
 
-    save_network = 1
+    save_network = 0
     net_name = '/mt_poly_bt'
 
     ### Datasets ###
@@ -107,7 +113,7 @@ if __name__ == '__main__':
 
     ### Defining the loss function and the optimizer ###
 
-    LEARNING_RATE = 0.25
+    LEARNING_RATE = 0.025
     L2_REG = 0.0
     MOMENTUM = 0.00
 
@@ -147,7 +153,8 @@ if __name__ == '__main__':
             print('['+str(epoch)+']'+' loss = '+str(loss.item()))
             train_loss.append(loss.item()) 
         epoch+=1
-
+        
+    train_loss.append(loss.item())
     print('['+str(epoch)+']'+' loss = '+ str(loss.item()))
 
 
