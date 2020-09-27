@@ -89,8 +89,8 @@ if __name__ == '__main__':
     ### Neural network parameters ###
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
-    NUM_HL = 8 # number of hidden layers (excludes the input layer)
-    NODES_HL = 16 # number of nodes per hidden layer (number of learned observables)
+    NUM_HL = 10 # number of hidden layers (excludes the input layer)
+    NODES_HL = 24 # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
