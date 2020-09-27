@@ -7,6 +7,7 @@ import os
 print("Using PyTorch Version %s" %torch.__version__)
 import pickle
 
+# print 
 class Net(nn.Module):
     def __init__(self, input_dim, output_dim, hl_sizes):
         super(Net, self).__init__()
