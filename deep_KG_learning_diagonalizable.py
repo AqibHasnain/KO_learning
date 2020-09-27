@@ -26,6 +26,12 @@ class Net(nn.Module):
         return x
 
 
+# def matmul_complex(A,B):
+    ''' Function to compute complex matrix multiplication because PyTorch still hasn't implemented this ''' 
+    # return torch.view_as_complex(torch.stack((A.real@B.real-A.imag@B.imag, A.real@B.imag+A.imag@B.real),dim=2))
+
+# Unfortunately, PyTorch (and I believe TensorFlow also) does not fully support complex tensor algebra and autodiff. A shame. 
+
 if __name__ == '__main__':
 
     script_dir = os.path.dirname('deep_KG_learning.py') # getting relative path
