@@ -89,8 +89,8 @@ if __name__ == '__main__':
     ### Neural network parameters ###
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
-    NUM_HL = 6 # number of hidden layers (excludes the input layer)
-    NODES_HL = 6 # number of nodes per hidden layer (number of learned observables)
+    NUM_HL = 8 # number of hidden layers (excludes the input layer)
+    NODES_HL = 8 # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     print(net)
 
     ### Defining the loss function and the optimizer ###
-    LEARNING_RATE = 0.025 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
+    LEARNING_RATE = 0.5 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
     L2_REG = 0.0
     MOMENTUM = 0.0
 
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     lr_stop_update = 51
     eps = 1e-14
     train_loss = []
-    maxEpochs = 500
+    maxEpochs = 1000
     prev_loss = 0
     curr_loss = 1e10
     epoch = 0
@@ -148,8 +148,9 @@ if __name__ == '__main__':
             print('['+str(epoch)+']'+' loss = '+str(loss.item()))
             if curr_loss > prev_loss: # update learning rate
                 for g in optimizer.param_groups:
-                    g['lr'] = LEARNING_RATE * 0.95
+                    g['lr'] = LEARNING_RATE * 0.5
                 LEARNING_RATE = g['lr']
+                print('Updated learning rate: ' + str(LEARNING_RATE))
             
         train_loss.append(loss.item()) 
         epoch+=1
