@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
     NUM_HL = 8 # number of hidden layers (excludes the input layer)
-    NODES_HL = 16 # number of nodes per hidden layer (number of learned observables)
+    NODES_HL = 32   # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     print(net)
 
     ### Defining the loss function and the optimizer ###
-    LEARNING_RATE = 0.25 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
+    LEARNING_RATE = 0.5 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
     L2_REG = 0.0
     MOMENTUM = 0.0
 
@@ -111,9 +111,9 @@ if __name__ == '__main__':
     print_less_often = 2
     lr_update = 50
     lr_stop_update = 51
-    eps = 1e-14
+    eps = 1e-15
     train_loss = []
-    maxEpochs = 200
+    maxEpochs = 500
     prev_loss = 0
     curr_loss = 1e10
     epoch = 0
