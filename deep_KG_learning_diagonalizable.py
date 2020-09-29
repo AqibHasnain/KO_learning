@@ -89,8 +89,8 @@ if __name__ == '__main__':
     ### Neural network parameters ###
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
-    NUM_HL = 16 # number of hidden layers (excludes the input layer)
-    NODES_HL = 64   # number of nodes per hidden layer (number of learned observables)
+    NUM_HL = 8 # number of hidden layers (excludes the input layer)
+    NODES_HL = 32   # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
@@ -157,9 +157,9 @@ if __name__ == '__main__':
 
         if epoch % epoch_to_save_net == 0:
             print('Saving network at epoch ' + str(epoch))
-                if save_network:
-                    pickle.dump([NUM_INPUTS,NUM_OUTPUTS,HL_SIZES],open(trained_models_path+net_name+'_netsize.pickle','wb'))
-                    torch.save(net.state_dict(), trained_models_path+net_name+'_net.pt') # saving the model state in ordered dict
+            if save_network:
+                pickle.dump([NUM_INPUTS,NUM_OUTPUTS,HL_SIZES],open(trained_models_path+net_name+'_netsize.pickle','wb'))
+                torch.save(net.state_dict(), trained_models_path+net_name+'_net.pt') # saving the model state in ordered dict
 
 
     print('['+str(epoch)+']'+' loss = '+ str(loss.item()))
