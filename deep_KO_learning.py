@@ -127,6 +127,7 @@ if __name__ == '__main__':
 
     ### Training the network ###
     print_less_often = 2
+    epoch_to_save_net = 25
     eps = 1e-10
     train_loss = []
     maxEpochs =  4 # 20000
@@ -157,6 +158,12 @@ if __name__ == '__main__':
             print('['+str(epoch)+']'+' loss = '+str(loss.item()))
         train_loss.append(loss.item()) 
         epoch+=1
+
+        if epoch % epoch_to_save_net == 0:
+            print('Saving network at epoch ' + str(epoch))
+            if save_network:
+                pickle.dump([NUM_INPUTS,NUM_OUTPUTS,HL_SIZES],open(trained_models_path+net_name+'_netsize.pickle','wb'))
+                torch.save(net.state_dict(), trained_models_path+net_name+'_net.pt') # saving the model state in ordered dict
         
     print('['+str(epoch)+']'+' loss = '+ str(loss.item()))
     ### Done training ### 
@@ -175,7 +182,6 @@ if __name__ == '__main__':
     plt.xlabel('Epoch');
     if save_trainLoss_fig:
         plt.savefig(figs_path+net_name+'_Loss.pdf')
-    plt.show();
 
 
 

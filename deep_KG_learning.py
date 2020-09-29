@@ -32,7 +32,7 @@ if __name__ == '__main__':
     data_path = os.path.join(script_dir,'data/')
 
     save_network = True
-    net_name = '/KG_slow_manifold'
+    net_name = '/slow_manifold_KG'
 
     save_trainLoss_fig = True
     figs_path = os.path.join(script_dir,'figures')
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     dataset = 1 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory, number of trajectories, and list of dt's
         
     if dataset == 0: 
-        file_dir = 'toggle_switch_data_normed.p'
+        file_dir = 'toggle_switch_KG.p'
 
     if dataset == 1:
         file_dir = 'slow_manifold_KG.p'
@@ -172,7 +172,6 @@ if __name__ == '__main__':
     plt.xlabel('Epoch');
     if save_trainLoss_fig:
         plt.savefig(figs_path+net_name+'_Loss.pdf')
-    plt.show();
 
 
 
