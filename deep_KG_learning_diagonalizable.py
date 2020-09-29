@@ -89,8 +89,8 @@ if __name__ == '__main__':
     ### Neural network parameters ###
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
-    NUM_HL = 8 # number of hidden layers (excludes the input layer)
-    NODES_HL = 32   # number of nodes per hidden layer (number of learned observables)
+    NUM_HL = 16 # number of hidden layers (excludes the input layer)
+    NODES_HL = 64   # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     ### Defining the loss function and the optimizer ###
     LEARNING_RATE = 0.5 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
     L2_REG = 0.0
-    MOMENTUM = 0.0
+    MOMENTUM = 0.01
 
     loss_func = nn.MSELoss()
     optimizer = torch.optim.SGD(net.parameters(),lr=LEARNING_RATE,momentum=MOMENTUM,weight_decay=L2_REG)
@@ -109,8 +109,8 @@ if __name__ == '__main__':
 
     ### Training the network ###
     print_less_often = 2
-    lr_update = 50
-    lr_stop_update = 51
+    epoch_to_save_net = 25
+    lr_update = 0.85
     eps = 1e-15
     train_loss = []
     maxEpochs = 500
@@ -145,15 +145,22 @@ if __name__ == '__main__':
         curr_loss = loss.item()
 
         if epoch % print_less_often == 0:
-            print('['+str(epoch)+']'+' loss = '+str(loss.item()))
+            print('['+str(epoch)+']'+' loss = '+str(curr_loss))
             if curr_loss > prev_loss: # update learning rate
                 for g in optimizer.param_groups:
-                    g['lr'] = LEARNING_RATE * 0.5
+                    g['lr'] = LEARNING_RATE * lr_update
                 LEARNING_RATE = g['lr']
                 print('Updated learning rate: ' + str(LEARNING_RATE))
             
         train_loss.append(loss.item()) 
         epoch+=1
+
+        if epoch % epoch_to_save_net == 0:
+            print('Saving network at epoch ' + str(epoch))
+                if save_network:
+                    pickle.dump([NUM_INPUTS,NUM_OUTPUTS,HL_SIZES],open(trained_models_path+net_name+'_netsize.pickle','wb'))
+                    torch.save(net.state_dict(), trained_models_path+net_name+'_net.pt') # saving the model state in ordered dict
+
 
     print('['+str(epoch)+']'+' loss = '+ str(loss.item()))
     ### Done training ###
