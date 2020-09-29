@@ -25,13 +25,6 @@ class Net(nn.Module):
         x = torch.cat((torch.Tensor(np.ones((x.shape[0],1))),input_vecs,x),dim=1)
         return x
 
-
-# def matmul_complex(A,B):
-    ''' Function to compute complex matrix multiplication because PyTorch still hasn't implemented this ''' 
-    # return torch.view_as_complex(torch.stack((A.real@B.real-A.imag@B.imag, A.real@B.imag+A.imag@B.real),dim=2))
-
-# Unfortunately, PyTorch (and I believe TensorFlow also) does not fully support complex tensor algebra and autodiff. A shame. 
-
 if __name__ == '__main__':
 
     script_dir = os.path.dirname('deep_KG_learning.py') # getting relative path
@@ -90,7 +83,7 @@ if __name__ == '__main__':
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
     NUM_HL = 8 # number of hidden layers (excludes the input layer)
-    NODES_HL = 32   # number of nodes per hidden layer (number of learned observables)
+    NODES_HL = 24   # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
@@ -100,7 +93,7 @@ if __name__ == '__main__':
     ### Defining the loss function and the optimizer ###
     LEARNING_RATE = 0.5 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
     L2_REG = 0.0
-    MOMENTUM = 0.01
+    MOMENTUM = 0.0
 
     loss_func = nn.MSELoss()
     optimizer = torch.optim.SGD(net.parameters(),lr=LEARNING_RATE,momentum=MOMENTUM,weight_decay=L2_REG)
@@ -133,7 +126,7 @@ if __name__ == '__main__':
 
             eL = torch.diag_embed(torch.exp(net.L*dt)) # exponential of the eigs, then embedded into a diagonal matrix
             K = torch.matmul(torch.matmul(net.V,eL),torch.pinverse(net.V)) # matrix representation of Koopman operator
-            
+
             Kpsixp = torch.matmul(net(trainXp[i:i+1]),K) 
             psixf = net(trainXf[i:i+1])
             loss = loss_func(psixf, Kpsixp)
