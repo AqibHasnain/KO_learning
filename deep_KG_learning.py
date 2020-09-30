@@ -32,14 +32,14 @@ if __name__ == '__main__':
     data_path = os.path.join(script_dir,'data/')
 
     save_network = True
-    net_name = '/toggle_switch_KG'
+    net_name = '/slow_manifold_KG'
 
     save_trainLoss_fig = True
     figs_path = os.path.join(script_dir,'figures')
 
     ### Datasets ###
 
-    dataset = 0 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory, number of trajectories, and list of dt's
+    dataset = 1 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory, number of trajectories, and list of dt's
         
     if dataset == 0: 
         file_dir = 'toggle_switch_KG.p'
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
     NUM_HL = 8 # number of hidden layers (excludes the input layer)
-    NODES_HL = 24   # number of nodes per hidden layer (number of learned observables)
+    NODES_HL = 8   # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     print(net)
 
     ### Defining the loss function and the optimizer ###
-    LEARNING_RATE = 0.5 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
+    LEARNING_RATE = 0.25 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
     L2_REG = 0.0
     MOMENTUM = 0.0
 
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     ### Training the network ###
     print_less_often = 2
     epoch_to_save_net = 25
-    lr_update = 0.5
+    lr_update = 0.85
     eps = 1e-15
     train_loss = []
     maxEpochs = 500
