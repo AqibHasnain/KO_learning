@@ -32,14 +32,14 @@ if __name__ == '__main__':
     data_path = os.path.join(script_dir,'data/')
 
     save_network = True
-    net_name = '/slow_manifold_KG'
+    net_name = '/toggle_switch_KG'
 
     save_trainLoss_fig = True
     figs_path = os.path.join(script_dir,'figures')
 
     ### Datasets ###
 
-    dataset = 1 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory, number of trajectories, and list of dt's
+    dataset = 0 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory, number of trajectories, and list of dt's
         
     if dataset == 0: 
         file_dir = 'toggle_switch_KG.p'
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     ### Training the network ###
     print_less_often = 2
     epoch_to_save_net = 25
-    lr_update = 0.85
+    lr_update = 0.5
     eps = 1e-15
     train_loss = []
     maxEpochs = 500
