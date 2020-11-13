@@ -40,8 +40,8 @@ if __name__ == '__main__':
     trained_models_path = os.path.join(script_dir, 'trained_models') # which relative path do you want to see
     data_path = os.path.join(script_dir,'data/')
 
-    save_network = 0
-    net_name = '/toggle_switch'
+    save_network = 1
+    net_name = '/toggle_switch_KO'
 
     save_trainLoss_fig = 1
     figs_path = os.path.join(script_dir,'figures')
@@ -51,24 +51,12 @@ if __name__ == '__main__':
     dataset = 0 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory and the number of trajectories
 
     if dataset == 0: 
-        file_dir = 'toggle_switch_data.p'
+        file_dir = 'toggle_switch_KO.p'
         
-    if dataset == 1: 
-        file_dir = 'toggle_switch_data_normed.p'
-        
-    if dataset == 2: 
-        file_dir = 'stable_linsys.p'
-        
-    if dataset == 3:
-        file_dir = 'slow_manifold_data.p'
-        
-    if dataset == 4: 
-        file_dir = 'slow_manifold_data_normed.p'
-        
-    if dataset == 5:
+    if dataset == 1:
         file_dir = 'malathion_polyculture_pfluorescens_TPMs.p'
 
-    if dataset == 6:
+    if dataset == 2:
         file_dir = 'mt_poly_bt_TPMs.p'
 
 
@@ -106,8 +94,8 @@ if __name__ == '__main__':
     ### Neural network parameters ###
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
-    NUM_HL = 8 # number of hidden layers (excludes the input and output layers)
-    NODES_HL = 8 # number of nodes per hidden layer (number of learned observables)
+    NUM_HL = 7 # number of hidden layers (excludes the input and output layers)
+    NODES_HL = 10 # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
     BATCH_SIZE = 2 #int(nT/10) 
@@ -130,7 +118,7 @@ if __name__ == '__main__':
     epoch_to_save_net = 25
     eps = 1e-10
     train_loss = []
-    maxEpochs =  4 # 20000
+    maxEpochs =  30 # 20000
     prev_loss = 0
     curr_loss = 1e10
     epoch = 0

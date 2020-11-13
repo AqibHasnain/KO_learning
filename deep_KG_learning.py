@@ -15,8 +15,8 @@ class Net(nn.Module):
         for hl_dim in hl_sizes:
             self.linears.append(nn.Linear(current_dim, hl_dim))
             current_dim = hl_dim
-        self.L = nn.Parameter(torch.rand(output_dim,requires_grad=True)) # vector of eigenvalues
-        self.V = nn.Parameter(torch.rand(output_dim,output_dim,requires_grad=True)) # matrix of eigenvecs
+        self.L = nn.Parameter(torch.rand(output_dim,requires_grad=True,dtype=torch.cfloat)) # vector of eigenvalues
+        self.V = nn.Parameter(torch.rand(output_dim,output_dim,requires_grad=True,dtype=torch.cfloat)) # matrix of eigenvecs
 
     def forward(self, x):
         input_vecs = x
