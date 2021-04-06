@@ -41,14 +41,14 @@ if __name__ == '__main__':
     data_path = os.path.join(script_dir,'data/')
 
     save_network = 1
-    net_name = '/toggle_switch_KO'
+    net_name = '/malathion_fluorescens'
 
     save_trainLoss_fig = 1
     figs_path = os.path.join(script_dir,'figures')
 
     ### Datasets ###
 
-    dataset = 0 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory and the number of trajectories
+    dataset = 4 # each dataset contains the global snapshot matrix as well as the number of snapshots per trajectory and the number of trajectories
 
     if dataset == 0: 
         file_dir = 'toggle_switch_KO.p'
@@ -58,6 +58,12 @@ if __name__ == '__main__':
 
     if dataset == 2:
         file_dir = 'mt_poly_bt_TPMs.p'
+
+    if dataset == 3:
+        file_dir = 'arc4s_KO.p'
+
+    if dataset == 4:
+        file_dir = 'malathion_fluorescens_tpm.p'
 
 
     def get_snapshot_matrices(X,nT,nTraj): 
@@ -94,18 +100,18 @@ if __name__ == '__main__':
     ### Neural network parameters ###
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
-    NUM_HL = 7 # number of hidden layers (excludes the input and output layers)
-    NODES_HL = 10 # number of nodes per hidden layer (number of learned observables)
+    NUM_HL = 4 # number of hidden layers (excludes the input and output layers)
+    NODES_HL = 2 # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
-    BATCH_SIZE = 2 #int(nT/10) 
+    BATCH_SIZE = 1 #int(nT/10) 
 
     net = Net(NUM_INPUTS,NUM_OUTPUTS,HL_SIZES)
     print(net)
 
     ### Defining the loss function and the optimizer ###
 
-    LEARNING_RATE = 0.025
+    LEARNING_RATE = 0.5
     L2_REG = 0.0
     MOMENTUM = 0.00
 
@@ -114,11 +120,12 @@ if __name__ == '__main__':
 
 
     ### Training the network ###
-    print_less_often = 2
-    epoch_to_save_net = 25
-    eps = 1e-10
+    print_less_often = 20
+    epoch_to_save_net = 100
+    lr_update = 0.95
+    eps = 1e-12
     train_loss = []
-    maxEpochs =  30 # 20000
+    maxEpochs =  5000
     prev_loss = 0
     curr_loss = 1e10
     epoch = 0
@@ -136,7 +143,7 @@ if __name__ == '__main__':
             psixf = net(trainXf[i:i+BATCH_SIZE])['PsiXf']
             loss = loss_func(psixf, Kpsixp)
             
-            optimizer.zero_grad()
+            optimizer.zero_grad() 
             loss.backward()
             optimizer.step()
 
@@ -144,6 +151,12 @@ if __name__ == '__main__':
 
         if epoch % print_less_often == 0:
             print('['+str(epoch)+']'+' loss = '+str(loss.item()))
+            if curr_loss > prev_loss: # update learning rate
+                for g in optimizer.param_groups:
+                    g['lr'] = LEARNING_RATE * lr_update
+                LEARNING_RATE = g['lr']
+                print('Updated learning rate: ' + str(LEARNING_RATE))
+
         train_loss.append(loss.item()) 
         epoch+=1
 
