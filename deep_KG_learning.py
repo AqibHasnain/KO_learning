@@ -15,8 +15,9 @@ class Net(nn.Module):
         for hl_dim in hl_sizes:
             self.linears.append(nn.Linear(current_dim, hl_dim))
             current_dim = hl_dim
-        self.L = nn.Parameter(torch.rand(output_dim,requires_grad=True,dtype=torch.cfloat)) # vector of eigenvalues
-        self.V = nn.Parameter(torch.rand(output_dim,output_dim,requires_grad=True,dtype=torch.cfloat)) # matrix of eigenvecs
+        self.Lgen = nn.Parameter(torch.rand(output_dim,output_dim),requires_grad=True) # Koopman generator
+        # self.L = nn.Parameter(torch.rand(output_dim,requires_grad=True,dtype=torch.cfloat)) # vector of eigenvalues
+        # self.V = nn.Parameter(torch.rand(output_dim,output_dim,requires_grad=True,dtype=torch.cfloat)) # matrix of eigenvecs
 
     def forward(self, x):
         input_vecs = x
@@ -65,8 +66,9 @@ if __name__ == '__main__':
             Xp = X[:,prevInds]
             Xf = X[:,forInds]
             return Xp,Xf
-        
+    
     X,nT,nTraj,dt_list = pickle.load(open(data_path+file_dir,'rb'))
+    print(nT,nTraj)
     Xp,Xf = get_snapshot_matrices(X,nT,nTraj)
     trainXp = torch.Tensor(Xp.T)
     trainXf = torch.Tensor(Xf.T)
@@ -82,8 +84,8 @@ if __name__ == '__main__':
     ### Neural network parameters ###
 
     NUM_INPUTS = trainXp.shape[1] # dimension of input
-    NUM_HL = 8 # number of hidden layers (excludes the input layer)
-    NODES_HL = 8   # number of nodes per hidden layer (number of learned observables)
+    NUM_HL = 4 # number of hidden layers (excludes the input layer)
+    NODES_HL = 5   # number of nodes per hidden layer (number of learned observables)
     HL_SIZES = [NODES_HL for i in range(0,NUM_HL+1)] 
     NUM_OUTPUTS = NUM_INPUTS + HL_SIZES[-1] + 1 # output layer takes in dimension of input + 1 + dimension of hl's
 
@@ -91,8 +93,8 @@ if __name__ == '__main__':
     print(net)
 
     ### Defining the loss function and the optimizer ###
-    LEARNING_RATE = 0.25 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
-    L2_REG = 0.0
+    LEARNING_RATE = 0.0025 # an initially large learning rate will cause the eigvecs (net.V) to be ill-conditioned
+    L2_REG = 0.0001
     MOMENTUM = 0.0
 
     loss_func = nn.MSELoss()
@@ -101,32 +103,36 @@ if __name__ == '__main__':
     # look into optimizer which has built-in learning rate decay
 
     ### Training the network ###
-    print_less_often = 2
-    epoch_to_save_net = 25
-    lr_update = 0.85
+    update_print_ct = 10
+    epoch_to_save_net = 50
+    lr_update = 0.9
     eps = 1e-15
     train_loss = []
-    maxEpochs = 500
+    maxEpochs = 2000
     prev_loss = 0
     curr_loss = 1e10
     epoch = 0
+    counteps = 0
     net.train()
 
     while (epoch <= maxEpochs): 
 
-        if epoch % print_less_often == 0:
+        if epoch % update_print_ct == 0:
             if np.abs(prev_loss - curr_loss) < eps:
-                print('The network has converged, eps = ' + str(eps))
-                break
+                counteps += 1
+                if counteps == 3:
+                    print('The network has converged, eps = ' + str(eps))
+                    break
             prev_loss = curr_loss
 
         for i in range(0,trainXp.shape[0]):
 
             dt = dt_list[i]
 
-            eL = torch.diag_embed(torch.exp(net.L*dt)) # exponential of the eigs, then embedded into a diagonal matrix
-            K = torch.matmul(torch.matmul(net.V,eL),torch.pinverse(net.V)) # matrix representation of Koopman operator
-
+            K = torch.matrix_exp(net.Lgen*dt)
+            # eL = torch.diag_embed(torch.exp(net.L*dt)) # exponential of the eigs, then embedded into a diagonal matrix
+            # K = torch.matmul(torch.matmul(net.V,eL),torch.inverse(net.V)) # matrix representation of Koopman operator
+            
             Kpsixp = torch.matmul(net(trainXp[i:i+1]),K) 
             psixf = net(trainXf[i:i+1])
             loss = loss_func(psixf, Kpsixp)
@@ -137,7 +143,7 @@ if __name__ == '__main__':
             
         curr_loss = loss.item()
 
-        if epoch % print_less_often == 0:
+        if epoch % update_print_ct == 0:
             print('['+str(epoch)+']'+' loss = '+str(curr_loss))
             if curr_loss > prev_loss: # update learning rate
                 for g in optimizer.param_groups:
